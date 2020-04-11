@@ -9,7 +9,7 @@
 лежат в файле `.env` ( должен находиться в корне проекта ), который скрыт в `.gitignore` от коммитов. Там находятся только вышеуказанные переменные.
 
 
-Для работы бота понадобятся три библиотеки:
+Для работы бота понадобятся четыре сторонние библиотеки:
 * ##### requests ( `pip install requests==2.23.0` ) 
 * ##### python-telegram-bot ( `pip install python-telegram-bot==12.5.1` )
 * ##### PySocks ( `pip install python-telegram-bot[socks]==1.7.1` )
