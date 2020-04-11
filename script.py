@@ -3,20 +3,27 @@ import time
 import telegram
 from telegram import utils
 from urllib.parse import urljoin
-from config import token_telegram, my_telegram_id, proxy, token_dvm
+import os
+from dotenv import load_dotenv
+import textwrap
+
+
+def load_env():
+    dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+    if os.path.exists(dotenv_path):
+        load_dotenv(dotenv_path)
 
 
 def main():
+    load_env()
     headers = {
-        'Authorization': 'Token ' + token_dvm
+        'Authorization': 'Token {}'.format(os.getenv('dvmn_token'))
     }
     url = 'https://dvmn.org/api/long_polling/'
-    is_one_more_request = False
+    timestamp = time.time()
     while True:
-        if not is_one_more_request:
-            timestamp = time.time()
         try:
-            response = requests.get(url, headers=headers, params={'timestamp': timestamp})
+            response = requests.get(url, headers=headers, params={'timestamp': timestamp}, timeout=60)
             response.raise_for_status()
             response_data = response.json()
             if response_data['status'] == 'timeout':
@@ -24,26 +31,32 @@ def main():
             elif response_data['status'] == 'found':
                 send_message(response_data['new_attempts'])
                 timestamp = response_data['last_attempt_timestamp']
-            is_one_more_request = True
+                print('Обнаружен ответ по задаче!')
         except requests.exceptions.ReadTimeout:
-            print('timeout')
-            is_one_more_request = False
+            print('timeout!')
         except ConnectionError:
             print('Проблемы с соединением')
-            is_one_more_request = False
 
 
-def send_message(api_answers):
-    config_proxy = telegram.utils.request.Request(proxy_url=proxy)
-    bot = telegram.Bot(token=token_telegram, request=config_proxy)
-    status_task = 'Принято 👍'
-    text = 'Хэй!\nТут по твоей работе кое-что ответили\nСтатус: {}\nТема модуля: {}\nURL: {}'
-    for api_answer in api_answers:
-        if api_answer['is_negative']:
-            status_task = 'Возвращена в работу 😔'
-        text = text.format(status_task, api_answer['lesson_title'], urljoin('https://dvmn.org/', api_answer['lesson_url']))
-
-    bot.send_message(chat_id=my_telegram_id, text=text)
+def send_message(attempts):
+    proxy = telegram.utils.request.Request(proxy_url=os.getenv('proxy_socks5'))
+    bot = telegram.Bot(token=os.getenv('telegram_token'), request=proxy)
+    status = 'Принято 👍'
+    text = '''
+            Хэй!
+            Тут по твоей задаче кое-что ответили
+            Статус: {}
+            Тема модуля: {}
+            URL: {}
+         '''
+    text = textwrap.dedent(text)
+    for attempt in attempts:
+        if attempt['is_negative']:
+            status = 'Возвращена в работу 😔'
+        title = attempt['lesson_title']
+        lesson_url = urljoin('https://dvmn.org/', attempt['lesson_url'])
+        text = text.format(status, title, lesson_url)
+    bot.send_message(chat_id=os.getenv('my_telegram_id'), text=text)
 
 
 if __name__ == '__main__':
