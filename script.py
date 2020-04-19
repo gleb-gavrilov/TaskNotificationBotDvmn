@@ -8,16 +8,11 @@ from dotenv import load_dotenv
 import textwrap
 
 
-def load_env():
-    dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-    if os.path.exists(dotenv_path):
-        load_dotenv(dotenv_path)
-
-
 def main():
-    load_env()
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    load_dotenv(os.path.join(basedir, '.env'))
     headers = {
-        'Authorization': 'Token {}'.format(os.getenv('dvmn_token'))
+        'Authorization': 'Token {}'.format(os.getenv('DVMN_TOKEN'))
     }
     url = 'https://dvmn.org/api/long_polling/'
     timestamp = time.time()
@@ -33,14 +28,14 @@ def main():
                 timestamp = response_data['last_attempt_timestamp']
                 print('Обнаружен ответ по задаче!')
         except requests.exceptions.ReadTimeout:
-            print('timeout!')
+            pass
         except ConnectionError:
-            print('Проблемы с соединением')
+            time.sleep(10)
 
 
 def send_message(attempts):
-    proxy = telegram.utils.request.Request(proxy_url=os.getenv('proxy_socks5'))
-    bot = telegram.Bot(token=os.getenv('telegram_token'), request=proxy)
+    proxy = telegram.utils.request.Request(proxy_url=os.getenv('PROXSY_SOCKS5'))
+    bot = telegram.Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'), request=proxy)
     status = 'Принято 👍'
     text = '''
             Хэй!
@@ -56,7 +51,7 @@ def send_message(attempts):
         title = attempt['lesson_title']
         lesson_url = urljoin('https://dvmn.org/', attempt['lesson_url'])
         text = text.format(status, title, lesson_url)
-    bot.send_message(chat_id=os.getenv('my_telegram_id'), text=text)
+    bot.send_message(chat_id=os.getenv('MY_TELEGRAM_ID'), text=text)
 
 
 if __name__ == '__main__':

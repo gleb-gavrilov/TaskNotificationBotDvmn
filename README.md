@@ -1,17 +1,28 @@
-# Бот для уведомления о проверке заданий
+# Task notification bot for [dvmn](https://dvmn.org/)
+## 1. Описание
+Бот позволяет получать мгновенные уведомления о проверке заданий через телеграмм. 
 
-Бот отправляет через телеграм уведомление о проверке заданий. Основные токены:
-* telegram_token ( токен от бота телеграма )
-* my_telegram_id ( ваш телеграм айди )
-* proxy_socks5 ( прокси socks5 )
-* dvmn_token ( токен от девмана )
+## 2. Требования к окружению
+Бот разрабатывался на языке `python 3.7.3`. Для его запуска потребуется установить [интерпретатор python](https://www.python.org/downloads/) 
 
-лежат в файле `.env` ( должен находиться в корне проекта ), который скрыт в `.gitignore` от коммитов. Там находятся только вышеуказанные переменные.
+### 2.1 Переменные окружения
+Для работы бота понадобятся следующие переменные:
 
+    * DVMN_TOKEN
+    * TELEGRAM_BOT_TOKEN
+    * MY_TELEGRAM_ID
+    * PROXSY_SOCKS5
+    
+1. Создайте `.env` файл около `script.py`.
+2. `.env` файл должен содержать:
+    - DVMN_TOKEN = ' личный токен от аккаунта девмана'
+    - TELEGRAM_BOT_TOKEN = 'токен вашего телеграм бота'
+    - MY_TELEGRAM_ID = ваш телеграмм айди
+    - PROXSY_SOCKS5 = 'адрес вашего прокси'
 
-Для работы бота понадобятся четыре сторонние библиотеки:
-* ##### requests ( `pip install requests==2.23.0` ) 
-* ##### python-telegram-bot ( `pip install python-telegram-bot==12.5.1` )
-* ##### PySocks ( `pip install python-telegram-bot[socks]==1.7.1` )
-* ##### python-dotenv ( `pip install python-dotenv==0.12.0` )
-Либо можно установить всё сразу `pip install -r requirements.txt`
+## 3. Как установить
+Скачайте файл `requirements.txt` и положите его в корень проекта. Наберите в терминале:
+`pip install -r requirements.txt`
+
+## 4. Запуск
+Либо через терминал `python script.py` либо через любую IDE ( в PyCharm, например, сочетание клавиш `Shift + F10`)
